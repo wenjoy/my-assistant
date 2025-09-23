@@ -1,3 +1,4 @@
+use serde::Deserialize;
 use std::collections::HashMap;
 
 #[tokio::main]
@@ -18,8 +19,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let status = resp.status();
     println!("status: {status}");
 
-    // let result = resp.json::<HashMap<String, String>>().await?;
-    let result = resp.text().await?;
+    #[derive(Deserialize, Debug)]
+    struct Announcement {
+        announcementTitle: String,
+    }
+    #[derive(Deserialize, Debug)]
+    struct Response {
+        announcements: Vec<Announcement>,
+    }
+
+    let result: Response = resp.json().await?;
 
     println!("{result:#?}");
     Ok(())
