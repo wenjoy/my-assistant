@@ -22,6 +22,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     #[derive(Deserialize, Debug)]
     struct Announcement {
         announcementTitle: String,
+        announcementTime: i64,
+        announcementId: String,
+        adjunctType: String,
+        adjunctUrl: String,
     }
     #[derive(Deserialize, Debug)]
     struct Response {
