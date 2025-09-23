@@ -4,10 +4,12 @@ use std::collections::HashMap;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // let url = "https://httpbin.org/ip";
     // let url = "https://httpbin.org/anything";
-    let url = "http://localhost:8080";
-    // let url = "https://www.cninfo.com.cn/new/hisAnnouncement/query";
+    // let url = "http://localhost:8080";
+    let url = "https://www.cninfo.com.cn/new/hisAnnouncement/query";
 
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+        .build()?;
 
     let mut map = HashMap::new();
     map.insert("stock", "601916,9900007207");
