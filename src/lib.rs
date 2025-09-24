@@ -1,6 +1,8 @@
 use serde::Deserialize;
 use std::{collections::HashMap, error::Error};
 
+pub mod db;
+
 #[derive(Deserialize, Debug)]
 struct Announcement {
     announcementTitle: String,
