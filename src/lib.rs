@@ -4,16 +4,16 @@ use std::{collections::HashMap, error::Error};
 pub mod db;
 
 #[derive(Deserialize, Debug)]
-struct Announcement {
+pub struct Announcement {
+    announcementId: String,
     announcementTitle: String,
     announcementTime: i64,
-    announcementId: String,
     adjunctType: String,
     adjunctUrl: String,
 }
 #[derive(Deserialize, Debug)]
 pub struct Response {
-    announcements: Vec<Announcement>,
+    pub announcements: Vec<Announcement>,
 }
 
 pub async fn fetch() -> Result<Response, Box<dyn Error>> {
