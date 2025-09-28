@@ -8,3 +8,5 @@ reqwest = { version =  "0.12.23", features = ["json"]}
 tokio = { version = "1.47.1", features = ["full"]}
 serde = { version = "1"}
 sqlx = { version = "0.8.6", features = ["sqlite"] }
+pdf-extract = "0.9.0"
+oxidize-pdf = "1.1.0"
