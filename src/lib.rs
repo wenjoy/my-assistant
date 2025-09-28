@@ -2,6 +2,7 @@ use serde::Deserialize;
 use std::{collections::HashMap, error::Error};
 
 pub mod db;
+pub mod pdf;
 
 #[derive(Deserialize, Debug)]
 pub struct Announcement {
