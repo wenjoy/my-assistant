@@ -1,4 +1,7 @@
-use sqlx::{Connection, Error, SqliteConnection};
+use sqlx::{
+    Connection, Error, Row, SqliteConnection,
+    sqlite::{SqliteQueryResult, SqliteRow},
+};
 
 use crate::Announcement;
 
@@ -20,12 +23,17 @@ pub async fn create_shema(conn: &mut SqliteConnection) -> Result<(), Error> {
     Ok(())
 }
 
-pub async fn query_data(conn: &mut SqliteConnection) -> Result<(), Error> {
+pub async fn query_data(conn: &mut SqliteConnection) -> Result<Vec<SqliteRow>, Error> {
     let res = sqlx::query("select * from announcements")
-        .execute(conn)
+        .fetch_all(conn)
         .await?;
-    println!("query: {res:?}");
-    Ok(())
+    for item in &res {
+        println!(
+            "{}",
+            item.try_get::<String, _>("announcement_title").unwrap()
+        );
+    }
+    Ok(res)
 }
 
 pub async fn insert_data(conn: &mut SqliteConnection, data: Announcement) -> Result<(), Error> {
