@@ -10,3 +10,4 @@ serde = { version = "1"}
 sqlx = { version = "0.8.6", features = ["sqlite"] }
 pdf-extract = "0.9.0"
 oxidize-pdf = "1.1.0"
+time = "0.3.44"

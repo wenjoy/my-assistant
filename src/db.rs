@@ -36,6 +36,13 @@ pub async fn query_data(conn: &mut SqliteConnection) -> Result<Vec<SqliteRow>, E
     Ok(res)
 }
 
+pub async fn query_latest_data(conn: &mut SqliteConnection) -> Result<SqliteRow, Error> {
+    let res = sqlx::query("SELECT * from announcements ORDER BY announcement_time DESC LIMIT 1")
+        .fetch_one(conn)
+        .await?;
+    Ok(res)
+}
+
 pub async fn insert_data(conn: &mut SqliteConnection, data: Announcement) -> Result<(), Error> {
     let res = sqlx::query(
         "INSERT INTO announcements (
