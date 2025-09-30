@@ -23,7 +23,7 @@ pub async fn create_shema(conn: &mut SqliteConnection) -> Result<(), Error> {
     Ok(())
 }
 
-pub async fn query_data(conn: &mut SqliteConnection) -> Result<Vec<String>, Error> {
+pub async fn query_data(conn: &mut SqliteConnection) -> Result<Vec<SqliteRow>, Error> {
     let res = sqlx::query("select * from announcements")
         .fetch_all(conn)
         .await?;
@@ -33,11 +33,7 @@ pub async fn query_data(conn: &mut SqliteConnection) -> Result<Vec<String>, Erro
     //     let pdf_url = item.try_get::<String, _>("adjunct_url").unwrap();
     //     println!("{}", pdf_url);
     // }
-    let pdf_urls = res
-        .iter()
-        .map(|item| item.try_get::<String, _>("adjunct_url").unwrap())
-        .collect();
-    Ok(pdf_urls)
+    Ok(res)
 }
 
 pub async fn insert_data(conn: &mut SqliteConnection, data: Announcement) -> Result<(), Error> {

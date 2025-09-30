@@ -32,10 +32,10 @@ pub async fn fetch() -> Result<Response, Box<dyn Error>> {
     let resp = request.send().await?;
 
     let status = resp.status();
-    println!("status: {status}");
+    // println!("status: {status}");
 
     let result: Response = resp.json().await?;
 
-    println!("{result:#?}");
+    // println!("{result:#?}");
     Ok(result)
 }
