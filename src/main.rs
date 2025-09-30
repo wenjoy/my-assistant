@@ -36,8 +36,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let result = fetch(Query {
         url: "https://www.cninfo.com.cn/new/hisAnnouncement/query",
         params: QueryParams {
-            stock: zhe_shuang_bank_code,
-            seDate: &latest_date_range,
+            stock: zhe_shuang_bank_code.to_string(),
+            seDate: latest_date_range,
         },
     })
     .await?;

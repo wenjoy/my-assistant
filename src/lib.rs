@@ -23,8 +23,8 @@ pub struct Query {
 }
 
 pub struct QueryParams {
-    pub stock: &'static str,
-    pub seDate: &'static str,
+    pub stock: String,
+    pub seDate: String,
 }
 
 pub async fn fetch(Query { url, params }: Query) -> Result<(), Box<dyn Error>> {
@@ -33,8 +33,8 @@ pub async fn fetch(Query { url, params }: Query) -> Result<(), Box<dyn Error>> {
         .build()?;
 
     let mut map = HashMap::new();
-    map.insert("stock", params.stock);
-    map.insert("seDate", params.seDate);
+    map.insert("stock", &params.stock);
+    map.insert("seDate", &params.seDate);
 
     let request = client.post(url).form(&map);
 
