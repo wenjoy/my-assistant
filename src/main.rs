@@ -1,12 +1,8 @@
 use my_assitant::{
-    Announcement, Query, QueryParams,
-    db::{create_shema, insert_data, query_data, query_latest_data},
-    fetch,
-    pdf::{fetch_pdf, read_pdf},
+    db::{create_shema, initial_database, insert_data, query_data, query_latest_data}, fetch, fetch_latest_data, pdf::{fetch_pdf, read_pdf}, Announcement, Query, QueryParams
 };
 use sqlx::Row;
 use sqlx::{Connection, SqliteConnection, sqlite::SqliteRow};
-use time::OffsetDateTime;
 fn get_pdf_urls(data: Vec<SqliteRow>) -> Vec<String> {
     let pdf_urls = data
         .iter()
@@ -19,28 +15,11 @@ fn get_pdf_urls(data: Vec<SqliteRow>) -> Vec<String> {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = SqliteConnection::connect("sqlite:data.db").await?;
-    create_shema(&mut conn).await?;
-    let res = query_latest_data(&mut conn).await?;
-    let latest_date = res.try_get::<i64, _>("announcement_time").unwrap();
-    let latest_date = OffsetDateTime::from_unix_timestamp_nanos(latest_date as i128).unwrap();
-    let zhe_shuang_bank_code = "601916,9900007207";
-    let latest_date_range = format!(
-        "{}-{}-{}~{}-{}-{}",
-        latest_date.year(),
-        latest_date.month(),
-        latest_date.day(),
-        latest_date.year(),
-        latest_date.month(),
-        latest_date.day() + 7
-    );
-    let result = fetch(Query {
-        url: "https://www.cninfo.com.cn/new/hisAnnouncement/query",
-        params: QueryParams {
-            stock: zhe_shuang_bank_code.to_string(),
-            seDate: latest_date_range,
-        },
-    })
-    .await?;
+    initial_database(&mut conn).await?;
+
+    let latest_row = query_latest_data(&mut conn).await?;
+    let latest_date = latest_row.try_get::<i64, _>("announcement_time").unwrap();
+    fetch_latest_data(latest_date).await?;
     // for item in result.announcements {
     //     insert_data(&mut conn, item).await?;
     // }

@@ -63,3 +63,8 @@ pub async fn insert_data(conn: &mut SqliteConnection, data: Announcement) -> Res
     println!("insert: {res:?}");
     Ok(())
 }
+
+pub async fn initial_database(conn: &mut SqliteConnection) -> Result<(), Error> {
+    create_shema(conn).await?;
+    Ok(())
+}
