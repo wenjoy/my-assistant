@@ -1,5 +1,10 @@
 use my_assitant::{
-    db::{create_shema, initial_database, insert_data, query_data, query_latest_data}, fetch, fetch_latest_data, pdf::{fetch_pdf, read_pdf}, Announcement, Query, QueryParams
+    Announcement, Query, QueryParams,
+    db::{
+        clear_database, create_shema, initial_database, insert_data, query_data, query_latest_data,
+    },
+    fetch, fetch_latest_data,
+    pdf::{fetch_pdf, read_pdf},
 };
 use sqlx::Row;
 use sqlx::{Connection, SqliteConnection, sqlite::SqliteRow};
@@ -16,8 +21,21 @@ fn get_pdf_urls(data: Vec<SqliteRow>) -> Vec<String> {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = SqliteConnection::connect("sqlite:data.db").await?;
     initial_database(&mut conn).await?;
+    clear_database(&mut conn).await?;
 
     let latest_row = query_latest_data(&mut conn).await?;
+    let latestdate
+    match latest_row {
+        Ok(row) => Ok(row),
+        Err(err) => {
+            if err == sqlx::Error::RowNotFound {
+                Ok(vec![])
+            } else {
+                Err(err.into())
+            }
+        }
+    }
+    println!("latest row: {:?}", latest_row.len());
     let latest_date = latest_row.try_get::<i64, _>("announcement_time").unwrap();
     fetch_latest_data(latest_date).await?;
     // for item in result.announcements {

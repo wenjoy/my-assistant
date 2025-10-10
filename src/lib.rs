@@ -47,11 +47,11 @@ pub async fn fetch(Query { url, params }: Query) -> Result<(), Box<dyn Error>> {
     // let result: Response = resp.json().await?;
     let result = resp.text().await?;
 
-    println!("{result:#?}");
+    println!("fetch result: {result:#?}");
     Ok(())
 }
 
-pub async fn fetch_latest_data (latest_date: i64) -> Result<(), Box<dyn Error>> {
+pub async fn fetch_latest_data(latest_date: i64) -> Result<(), Box<dyn Error>> {
     let latest_date = OffsetDateTime::from_unix_timestamp_nanos(latest_date as i128).unwrap();
     let zhe_shuang_bank_code = "601916,9900007207";
     let latest_date_range = format!(
