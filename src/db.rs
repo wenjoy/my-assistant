@@ -39,7 +39,7 @@ pub async fn query_data(conn: &mut SqliteConnection) -> Result<Vec<SqliteRow>, E
 pub async fn query_latest_data(conn: &mut SqliteConnection) -> Result<SqliteRow, Error> {
     let res = sqlx::query("SELECT * from announcements ORDER BY announcement_time DESC LIMIT 1")
         .fetch_one(conn)
-        .await;
+        .await?;
     Ok(res)
 }
 

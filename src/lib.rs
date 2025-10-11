@@ -25,7 +25,7 @@ pub struct Query {
 
 pub struct QueryParams {
     pub stock: String,
-    pub seDate: String,
+    pub seDate: Option<String>,
 }
 
 pub async fn fetch(Query { url, params }: Query) -> Result<(), Box<dyn Error>> {
@@ -34,8 +34,10 @@ pub async fn fetch(Query { url, params }: Query) -> Result<(), Box<dyn Error>> {
         .build()?;
 
     let mut map = HashMap::new();
-    map.insert("stock", &params.stock);
-    map.insert("seDate", &params.seDate);
+    map.insert("stock", params.stock.as_str());
+
+    let se_date = params.seDate.unwrap_or("".to_string());
+    map.insert("seDate", se_date.as_str());
 
     let request = client.post(url).form(&map);
 
@@ -51,9 +53,24 @@ pub async fn fetch(Query { url, params }: Query) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub async fn fetch_latest_data(latest_date: i64) -> Result<(), Box<dyn Error>> {
-    let latest_date = OffsetDateTime::from_unix_timestamp_nanos(latest_date as i128).unwrap();
+pub async fn fetch_all() -> Result<(), Box<dyn Error>> {
     let zhe_shuang_bank_code = "601916,9900007207";
+    let result = fetch(Query {
+        url: "https://www.cninfo.com.cn/new/hisAnnouncement/query",
+        params: QueryParams {
+            stock: zhe_shuang_bank_code.to_string(),
+            seDate: None,
+        },
+    })
+    .await?;
+
+    Ok(result)
+}
+
+pub async fn fetch_latest_data(latest_date: i64, range: Option<u32>) -> Result<(), Box<dyn Error>> {
+    let latest_date = OffsetDateTime::from_unix_timestamp(latest_date).unwrap();
+    let zhe_shuang_bank_code = "601916,9900007207";
+    let range = range.unwrap_or(7);
     let latest_date_range = format!(
         "{}-{}-{}~{}-{}-{}",
         latest_date.year(),
@@ -61,13 +78,14 @@ pub async fn fetch_latest_data(latest_date: i64) -> Result<(), Box<dyn Error>> {
         latest_date.day(),
         latest_date.year(),
         latest_date.month(),
-        latest_date.day() + 7
+        u32::from(latest_date.day()) + range
     );
+    println!("latest date range {}", latest_date_range);
     let result = fetch(Query {
         url: "https://www.cninfo.com.cn/new/hisAnnouncement/query",
         params: QueryParams {
             stock: zhe_shuang_bank_code.to_string(),
-            seDate: latest_date_range,
+            seDate: Some(latest_date_range),
         },
     })
     .await?;
