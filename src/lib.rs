@@ -28,7 +28,7 @@ pub struct QueryParams {
     pub seDate: Option<String>,
 }
 
-pub async fn fetch(Query { url, params }: Query) -> Result<(), Box<dyn Error>> {
+pub async fn fetch(Query { url, params }: Query) -> Result<Response, Box<dyn Error>> {
     let client = reqwest::Client::builder()
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
         .build()?;
@@ -46,14 +46,12 @@ pub async fn fetch(Query { url, params }: Query) -> Result<(), Box<dyn Error>> {
     let status = resp.status();
     println!("status: {status}");
 
-    // let result: Response = resp.json().await?;
-    let result = resp.text().await?;
-
+    let result: Response = resp.json().await?;
     println!("fetch result: {result:#?}");
-    Ok(())
+    Ok(result)
 }
 
-pub async fn fetch_all() -> Result<(), Box<dyn Error>> {
+pub async fn fetch_all() -> Result<Response, Box<dyn Error>> {
     let zhe_shuang_bank_code = "601916,9900007207";
     let result = fetch(Query {
         url: "https://www.cninfo.com.cn/new/hisAnnouncement/query",
@@ -67,7 +65,10 @@ pub async fn fetch_all() -> Result<(), Box<dyn Error>> {
     Ok(result)
 }
 
-pub async fn fetch_latest_data(latest_date: i64, range: Option<u32>) -> Result<(), Box<dyn Error>> {
+pub async fn fetch_latest_data(
+    latest_date: i64,
+    range: Option<u32>,
+) -> Result<Response, Box<dyn Error>> {
     let latest_date = OffsetDateTime::from_unix_timestamp(latest_date).unwrap();
     let zhe_shuang_bank_code = "601916,9900007207";
     let range = range.unwrap_or(7);

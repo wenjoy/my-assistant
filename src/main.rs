@@ -35,14 +35,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             eprintln!("Error fetching latest data: {}", err);
         }
     }
+
+    let result;
     if latest_date > 0 {
-        fetch_latest_data(latest_date, None).await?;
+        result = fetch_latest_data(latest_date, None).await?;
     } else {
-        fetch_all().await?;
+        result = fetch_all().await?;
     }
-    // for item in result.announcements {
-    //     insert_data(&mut conn, item).await?;
-    // }
+
+    for item in result.announcements {
+        insert_data(&mut conn, item).await?;
+    }
     // let urls = query_data(&mut conn).await?;
     // for url in urls {
     //     println!("url is {url}");
