@@ -1,9 +1,18 @@
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use std::{collections::HashMap, error::Error};
 use time::OffsetDateTime;
 
 pub mod db;
 pub mod pdf;
+
+fn deserialize_nullable_vec<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: Deserialize<'de>
+{
+    let opt = Option::<Vec<T>>::deserialize(deserializer)?;
+    Ok(opt.unwrap_or_default())
+}
 
 #[derive(Deserialize, Debug)]
 pub struct Announcement {
@@ -15,6 +24,7 @@ pub struct Announcement {
 }
 #[derive(Deserialize, Debug)]
 pub struct Response {
+    #[serde(default, deserialize_with = "deserialize_nullable_vec")]
     pub announcements: Vec<Announcement>,
 }
 
@@ -44,7 +54,7 @@ pub async fn fetch(Query { url, params }: Query) -> Result<Response, Box<dyn Err
     let resp = request.send().await?;
 
     let status = resp.status();
-    println!("status: {status}");
+    println!("fetch status: {status}");
 
     let result: Response = resp.json().await?;
     println!("fetch result: {result:#?}");
@@ -69,7 +79,7 @@ pub async fn fetch_latest_data(
     latest_date: i64,
     range: Option<u32>,
 ) -> Result<Response, Box<dyn Error>> {
-    let latest_date = OffsetDateTime::from_unix_timestamp(latest_date).unwrap();
+    let latest_date = OffsetDateTime::from_unix_timestamp(latest_date / 1000).unwrap();
     let zhe_shuang_bank_code = "601916,9900007207";
     let range = range.unwrap_or(7);
     let latest_date_range = format!(
