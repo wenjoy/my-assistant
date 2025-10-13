@@ -28,11 +28,6 @@ pub async fn query_data(conn: &mut SqliteConnection) -> Result<Vec<SqliteRow>, E
         .fetch_all(conn)
         .await?;
 
-    // Manually Debug
-    // for item in &res {
-    //     let pdf_url = item.try_get::<String, _>("adjunct_url").unwrap();
-    //     println!("{}", pdf_url);
-    // }
     Ok(res)
 }
 

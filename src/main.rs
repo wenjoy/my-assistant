@@ -22,7 +22,8 @@ fn get_pdf_urls(data: Vec<SqliteRow>) -> Vec<String> {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut conn = SqliteConnection::connect("sqlite:data.db").await?;
     initial_database(&mut conn).await?;
-    clear_database(&mut conn).await?;
+    //TODO: extract this into saparate bin
+    // clear_database(&mut conn).await?;
 
     let latest_row = query_latest_data(&mut conn).await;
     let mut latest_date = 0;
@@ -46,11 +47,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for item in result.announcements {
         insert_data(&mut conn, item).await?;
     }
-    // let urls = query_data(&mut conn).await?;
-    // for url in urls {
-    //     println!("url is {url}");
-    //     fetch_pdf(&url).await;
-    //     break;
-    // }
+
+    let res = query_data(&mut conn).await?;
+    for item in &res {
+        let pdf_url = item.try_get::<String, _>("adjunct_url").unwrap();
+        println!("{}", pdf_url);
+        fetch_pdf(&pdf_url).await?;
+        break;
+    }
     Ok(())
 }
