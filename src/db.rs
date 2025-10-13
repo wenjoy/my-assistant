@@ -1,6 +1,6 @@
 use sqlx::{
-    Connection, Error, Row, SqliteConnection,
-    sqlite::{SqliteQueryResult, SqliteRow},
+    Error, SqliteConnection,
+    sqlite::SqliteRow,
 };
 
 use crate::Announcement;

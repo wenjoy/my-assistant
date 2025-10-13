@@ -1,22 +1,12 @@
 use my_assitant::{
-    Announcement, Query, QueryParams,
     db::{
-        clear_database, create_shema, initial_database, insert_data, query_data, query_latest_data,
+        initial_database, insert_data, query_data, query_latest_data,
     },
-    fetch, fetch_all, fetch_latest_data,
-    pdf::{fetch_pdf, read_pdf},
+    fetch_all, fetch_latest_data,
+    pdf::fetch_pdf,
 };
 use sqlx::Row;
-use sqlx::{Connection, SqliteConnection, sqlite::SqliteRow};
-use time::{OffsetDateTime, macros::datetime};
-fn get_pdf_urls(data: Vec<SqliteRow>) -> Vec<String> {
-    let pdf_urls = data
-        .iter()
-        .map(|item| item.try_get::<String, _>("adjunct_url").unwrap())
-        .collect();
-
-    pdf_urls
-}
+use sqlx::{Connection, SqliteConnection};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -53,7 +43,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let pdf_url = item.try_get::<String, _>("adjunct_url").unwrap();
         println!("{}", pdf_url);
         fetch_pdf(&pdf_url).await?;
-        break;
     }
     Ok(())
 }

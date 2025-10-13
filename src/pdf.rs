@@ -1,6 +1,5 @@
-use std::{io::{self, Bytes}, path::Path};
+use std::path::Path;
 
-use oxidize_pdf::PdfReader;
 use tokio::fs;
 
 pub fn read_pdf() {
@@ -29,7 +28,6 @@ async fn save_pdf(filename: String, content: bytes::Bytes) -> Result<(),std::io:
 pub async fn fetch_pdf(filename: &str) -> Result<(), reqwest::Error> {
     let host = "https://static.cninfo.com.cn/";
     let url = String::from(host) + filename;
-    // let client = reqwest::Client::new();
     let bytes = reqwest::get(&url).await?.bytes().await?;
     println!("bytes, {bytes:?}");
     save_pdf(filename.to_string(), bytes).await.unwrap();
