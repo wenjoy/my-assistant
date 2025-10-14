@@ -1,6 +1,11 @@
 use serde::{Deserialize, Deserializer};
+use sqlx::Row;
+use sqlx::{Connection, SqliteConnection};
 use std::{collections::HashMap, error::Error};
 use time::OffsetDateTime;
+
+use crate::db::{initial_database, insert_data, query_data, query_latest_data};
+use crate::pdf::fetch_pdf;
 
 pub mod db;
 pub mod pdf;
@@ -8,7 +13,7 @@ pub mod pdf;
 fn deserialize_nullable_vec<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
 where
     D: Deserializer<'de>,
-    T: Deserialize<'de>
+    T: Deserialize<'de>,
 {
     let opt = Option::<Vec<T>>::deserialize(deserializer)?;
     Ok(opt.unwrap_or_default())
@@ -101,4 +106,42 @@ pub async fn fetch_latest_data(
     })
     .await?;
     Ok(result)
+}
+
+pub async fn crawl() -> Result<(), Box<dyn Error>> {
+    let mut conn = SqliteConnection::connect("sqlite:data.db").await?;
+    initial_database(&mut conn).await?;
+    //TODO: extract this into saparate bin
+    // clear_database(&mut conn).await?;
+
+    let latest_row = query_latest_data(&mut conn).await;
+    let mut latest_date = 0;
+    match latest_row {
+        Ok(row) => {
+            println!("latest row: {:?}", row.len());
+            latest_date = row.try_get("announcement_time").unwrap();
+        }
+        Err(err) => {
+            eprintln!("Error fetching latest data: {}", err);
+        }
+    }
+
+    let result;
+    if latest_date > 0 {
+        result = fetch_latest_data(latest_date, None).await?;
+    } else {
+        result = fetch_all().await?;
+    }
+
+    for item in result.announcements {
+        insert_data(&mut conn, item).await?;
+    }
+
+    let res = query_data(&mut conn).await?;
+    for item in &res {
+        let pdf_url = item.try_get::<String, _>("adjunct_url").unwrap();
+        println!("{}", pdf_url);
+        fetch_pdf(&pdf_url).await?;
+    }
+    Ok(())
 }
