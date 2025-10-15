@@ -9,6 +9,7 @@ use crate::pdf::fetch_pdf;
 
 pub mod db;
 pub mod pdf;
+pub mod server;
 
 fn deserialize_nullable_vec<'de, D, T>(deserializer: D) -> Result<Vec<T>, D::Error>
 where
