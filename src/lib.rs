@@ -4,7 +4,7 @@ use sqlx::{Connection, SqliteConnection};
 use std::{collections::HashMap, error::Error};
 use time::OffsetDateTime;
 
-use crate::db::{initial_database, insert_data, query_data, query_latest_data};
+use crate::db::{initial_database, insert_data, query_all_data, query_latest_data};
 use crate::pdf::fetch_pdf;
 
 pub mod db;
@@ -138,7 +138,7 @@ pub async fn crawl() -> Result<(), Box<dyn Error>> {
         insert_data(&mut conn, item).await?;
     }
 
-    let res = query_data(&mut conn).await?;
+    let res = query_all_data(&mut conn).await?;
     for item in &res {
         let pdf_url = item.try_get::<String, _>("adjunct_url").unwrap();
         println!("{}", pdf_url);
