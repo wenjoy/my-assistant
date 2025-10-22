@@ -20,8 +20,8 @@ pub async fn create_shema(conn: &mut SqliteConnection) -> Result<(), Error> {
     Ok(())
 }
 
-pub async fn query_all_data(conn: &mut SqliteConnection) -> Result<Vec<SqliteRow>, Error> {
-    let res = sqlx::query("select * from announcements")
+pub async fn query_all_data(conn: &mut SqliteConnection) -> Result<Vec<Announcement>, Error> {
+    let res = sqlx::query_as::<_, Announcement>("select * from announcements")
         .fetch_all(conn)
         .await?;
 

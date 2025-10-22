@@ -133,7 +133,7 @@ pub async fn crawl() -> Result<(), Box<dyn Error>> {
 
     let res = query_all_data(&mut conn).await?;
     for item in &res {
-        let pdf_url = item.try_get::<String, _>("adjunct_url").unwrap();
+        let pdf_url = &item.adjunctUrl;
         println!("{}", pdf_url);
         fetch_pdf(&pdf_url).await?;
     }
