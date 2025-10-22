@@ -7,6 +7,8 @@ use std::{
 
 use strum_macros::{AsRefStr, EnumString};
 
+use crate::model::Announcement;
+
 #[derive(EnumString, AsRefStr)]
 pub enum HttpMethod {
     #[strum(serialize = "GET")]
@@ -15,7 +17,7 @@ pub enum HttpMethod {
     POST,
 }
 
-type BoxFuture = Pin<Box<dyn Future<Output = ()>>>;
+type BoxFuture = Pin<Box<dyn Future<Output = Vec<Announcement>>>>;
 // pub type BoxFuture<'a> = Pin<Box<dyn Future<Output = ()> + Send + 'a>>;
 
 pub struct Router {
@@ -45,10 +47,10 @@ async fn handle_connection(mut stream: TcpStream, router: &mut Router) {
     let request_line: Vec<&str> = request_line.split(" ").collect();
     let [method, path] = [request_line[0], request_line[1]];
     let (status_lien, content) = if method == router.method.as_ref() && path == router.path {
-        (router.handler)().await;
-        ("HTTP/1.1 200 OK\r\n\r\n", "simple string")
+        let result = (router.handler)().await;
+        ("HTTP/1.1 200 OK\r\n\r\n", format!("{result:?}"))
     } else {
-        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "Not found")
+        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "Not found".to_string())
     };
     let response = format!("{status_lien}\r\n{content}");
     stream.write_all(response.as_bytes()).unwrap();

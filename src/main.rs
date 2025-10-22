@@ -17,8 +17,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Box::pin(async {
                 let mut conn = SqliteConnection::connect("sqlite:data.db").await.unwrap();
                 let data = query_all_data(&mut conn).await.unwrap();
-                println!("data is {:?}", data);
-                ()
+                // println!("data is {:?}", data);
+                data
             })
         }),
     };
