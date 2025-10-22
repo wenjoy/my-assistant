@@ -1,6 +1,6 @@
 use sqlx::{Error, SqliteConnection, sqlite::SqliteRow};
 
-use crate::Announcement;
+use crate::model::Announcement;
 
 pub async fn create_shema(conn: &mut SqliteConnection) -> Result<(), Error> {
     let res = sqlx::query(

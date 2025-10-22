@@ -8,6 +8,7 @@ use crate::db::{initial_database, insert_data, query_all_data, query_latest_data
 use crate::pdf::fetch_pdf;
 
 pub mod db;
+pub mod model;
 pub mod pdf;
 pub mod server;
 
@@ -21,17 +22,9 @@ where
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Announcement {
-    announcementId: String,
-    announcementTitle: String,
-    announcementTime: i64,
-    adjunctType: String,
-    adjunctUrl: String,
-}
-#[derive(Deserialize, Debug)]
 pub struct Response {
     #[serde(default, deserialize_with = "deserialize_nullable_vec")]
-    pub announcements: Vec<Announcement>,
+    pub announcements: Vec<model::Announcement>,
 }
 
 pub struct Query {
