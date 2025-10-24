@@ -1,7 +1,7 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sqlx::prelude::FromRow;
 
-#[derive(Deserialize, Debug, FromRow)]
+#[derive(Deserialize, Serialize, Debug, FromRow)]
 pub struct Announcement {
     #[sqlx(rename = "announcement_id")]
     pub announcementId: i64,

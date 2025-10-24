@@ -46,12 +46,17 @@ async fn handle_connection(mut stream: TcpStream, router: &mut Router) {
     let request_line = buffer.lines().next().unwrap().unwrap();
     let request_line: Vec<&str> = request_line.split(" ").collect();
     let [method, path] = [request_line[0], request_line[1]];
-    let (status_lien, content) = if method == router.method.as_ref() && path == router.path {
+    let (status_line, content) = if method == router.method.as_ref() && path == router.path {
         let result = (router.handler)().await;
-        ("HTTP/1.1 200 OK\r\n\r\n", format!("{result:?}"))
+        (
+            "HTTP/1.1 200 OK",
+            serde_json::to_string(&result).unwrap_or("".to_string()),
+        )
     } else {
-        ("HTTP/1.1 404 NOT FOUND\r\n\r\n", "Not found".to_string())
+        ("HTTP/1.1 404 NOT FOUND", "Not found".to_string())
     };
-    let response = format!("{status_lien}\r\n{content}");
+    let len = content.len();
+    let header = format!("Content-Length: {len}\r\nContent-Type: application/json");
+    let response = format!("{status_line}\r\n{header}\r\n\r\n{content}");
     stream.write_all(response.as_bytes()).unwrap();
 }
