@@ -28,10 +28,12 @@ pub async fn query_all_data(conn: &mut SqliteConnection) -> Result<Vec<Announcem
     Ok(res)
 }
 
-pub async fn query_latest_data(conn: &mut SqliteConnection) -> Result<SqliteRow, Error> {
-    let res = sqlx::query("SELECT * from announcements ORDER BY announcement_time DESC LIMIT 1")
-        .fetch_one(conn)
-        .await?;
+pub async fn query_latest_data(conn: &mut SqliteConnection) -> Result<Announcement, Error> {
+    let res = sqlx::query_as::<_, Announcement>(
+        "SELECT * from announcements ORDER BY announcement_time DESC LIMIT 1",
+    )
+    .fetch_one(conn)
+    .await?;
     Ok(res)
 }
 

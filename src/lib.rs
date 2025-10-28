@@ -112,8 +112,8 @@ pub async fn crawl() -> Result<(), Box<dyn Error>> {
     let mut latest_date = 0;
     match latest_row {
         Ok(row) => {
-            println!("latest row: {:?}", row.len());
-            latest_date = row.try_get("announcement_time").unwrap();
+            println!("latest row: {:?}", row);
+            latest_date = row.announcementTime;
         }
         Err(err) => {
             eprintln!("Error fetching latest data: {}", err);
@@ -122,20 +122,19 @@ pub async fn crawl() -> Result<(), Box<dyn Error>> {
 
     let result;
     if latest_date > 0 {
+        println!("fetch latest, {}", latest_date);
         result = fetch_latest_data(latest_date, None).await?;
     } else {
+        println!("fetch all, {}", latest_date);
         result = fetch_all().await?;
     }
 
     for item in result.announcements {
-        insert_data(&mut conn, item).await?;
-    }
-
-    let res = query_all_data(&mut conn).await?;
-    for item in &res {
-        let pdf_url = &item.adjunctUrl;
+        let pdf_url = item.adjunctUrl.clone();
         println!("{}", pdf_url);
+        insert_data(&mut conn, item).await?;
         fetch_pdf(&pdf_url).await?;
     }
+
     Ok(())
 }

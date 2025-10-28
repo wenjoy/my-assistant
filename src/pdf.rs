@@ -15,7 +15,7 @@ pub fn read_pdf() {
     //     println!("Page {}: {:?}", page_num + 1, page_text);
     // }
 }
-async fn save_pdf(filename: String, content: bytes::Bytes) -> Result<(),std::io::Error>{
+async fn save_pdf(filename: String, content: bytes::Bytes) -> Result<(), std::io::Error> {
     let path = Path::new("static").join(&filename);
 
     if let Some(parent) = path.parent() {
@@ -29,7 +29,7 @@ pub async fn fetch_pdf(filename: &str) -> Result<(), reqwest::Error> {
     let host = "https://static.cninfo.com.cn/";
     let url = String::from(host) + filename;
     let bytes = reqwest::get(&url).await?.bytes().await?;
-    println!("bytes, {bytes:?}");
+    // println!("bytes, {bytes:?}");
     save_pdf(filename.to_string(), bytes).await.unwrap();
     Ok(())
 }
