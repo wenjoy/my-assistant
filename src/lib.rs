@@ -1,10 +1,9 @@
 use serde::{Deserialize, Deserializer};
-use sqlx::Row;
 use sqlx::{Connection, SqliteConnection};
 use std::{collections::HashMap, error::Error};
 use time::OffsetDateTime;
 
-use crate::db::{initial_database, insert_data, query_all_data, query_latest_data};
+use crate::db::{initial_database, insert_data, query_latest_data};
 use crate::pdf::fetch_pdf;
 
 pub mod db;
@@ -74,22 +73,16 @@ pub async fn fetch_all() -> Result<Response, Box<dyn Error>> {
     Ok(result)
 }
 
-pub async fn fetch_latest_data(
-    latest_date: i64,
-    range: Option<u32>,
-) -> Result<Response, Box<dyn Error>> {
-    let latest_date = OffsetDateTime::from_unix_timestamp(latest_date / 1000).unwrap();
+fn get_daterange(date: i64) -> String {
+    let date = OffsetDateTime::from_unix_timestamp(date / 1000).unwrap();
+    let now = OffsetDateTime::now_utc();
+    let latest_date_range = format!("{}~{}", date.date(), now.date());
+    latest_date_range
+}
+
+pub async fn fetch_latest_data(latest_date: i64) -> Result<Response, Box<dyn Error>> {
     let zhe_shuang_bank_code = "601916,9900007207";
-    let range = range.unwrap_or(7);
-    let latest_date_range = format!(
-        "{}-{}-{}~{}-{}-{}",
-        latest_date.year(),
-        latest_date.month(),
-        latest_date.day(),
-        latest_date.year(),
-        latest_date.month(),
-        u32::from(latest_date.day()) + range
-    );
+    let latest_date_range = get_daterange(latest_date);
     println!("latest date range {}", latest_date_range);
     let result = fetch(Query {
         url: "https://www.cninfo.com.cn/new/hisAnnouncement/query",
@@ -123,7 +116,7 @@ pub async fn crawl() -> Result<(), Box<dyn Error>> {
     let result;
     if latest_date > 0 {
         println!("fetch latest, {}", latest_date);
-        result = fetch_latest_data(latest_date, None).await?;
+        result = fetch_latest_data(latest_date).await?;
     } else {
         println!("fetch all, {}", latest_date);
         result = fetch_all().await?;
