@@ -4,7 +4,7 @@ use sqlx::prelude::FromRow;
 #[derive(Deserialize, Serialize, Debug, FromRow)]
 pub struct Announcement {
     #[sqlx(rename = "announcement_id")]
-    pub announcementId: i64,
+    pub announcementId: String,
     #[sqlx(rename = "announcement_title")]
     pub announcementTitle: String,
     #[sqlx(rename = "announcement_time")]

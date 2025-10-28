@@ -54,6 +54,11 @@ pub async fn fetch(Query { url, params }: Query) -> Result<Response, Box<dyn Err
     let status = resp.status();
     println!("fetch status: {status}");
 
+    // let result = resp.text().await?;
+    // println!("fetch result: {result:#?}");
+    // let result = Response {
+    //     announcements: vec![],
+    // };
     let result: Response = resp.json().await?;
     println!("fetch result: {result:#?}");
     Ok(result)
