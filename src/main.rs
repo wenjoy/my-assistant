@@ -1,15 +1,11 @@
 use my_assitant::{
-    crawl,
     db::query_all_data,
     server::{HttpMethod, Router, http_server},
 };
-use sqlx::Row;
 use sqlx::{Connection, SqliteConnection};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    //TODO: do this job regularly
-    // crawl().await?;
     let router = Router {
         method: HttpMethod::GET,
         path: "/announcements".to_string(),
