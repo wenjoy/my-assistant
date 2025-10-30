@@ -4,10 +4,10 @@ use my_assitant::{
     server::{HttpMethod, Router, http_server},
 };
 use sqlx::{Connection, SqliteConnection};
+use tokio::time;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    crawl().await?;
     let router = Router {
         method: HttpMethod::GET,
         path: "/announcements".to_string(),
@@ -21,5 +21,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }),
     };
     http_server(router).await;
-    Ok(())
+    let day1 = time::Duration::from_secs(24 * 60 * 60);
+    let mut interval = time::interval(day1);
+    loop {
+        interval.tick().await;
+        if let Err(e) = crawl().await {
+            println!("Crawl error: {e}");
+        }
+    }
 }
